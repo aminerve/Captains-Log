@@ -57,6 +57,13 @@ app.post('/logs/', (req,res) => {
     })
 })
 
+// Show Route
+app.get('/logs/:id', (req,res) => {
+    Logs.findById(req.params.id, (error, foundLog) => {
+        res.render('Show', {Logs: foundLog})
+    })
+})
+
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`)
     connectToMongoDB()
