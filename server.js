@@ -1,7 +1,11 @@
 require('dotenv').config()
 const express = require('express')
+const methodOverride = require('method-override')
 const app = express()
 const port = 3000
+
+
+// MongoDB configuration
 const connectToMongoDB = require('./config/db')
 const Logs = require('./models/logs')
 
@@ -20,7 +24,7 @@ app.use((req, res, next) => {
 // parses the data from the request
 app.use(express.urlencoded({extended: false}))
 // override using a query value
-// app.use(methodOverride('_method'))
+app.use(methodOverride('_method'))
 app.use(express.static('public'))
 
 app.get('/', (req,res) => {
@@ -62,6 +66,33 @@ app.get('/logs/:id', (req,res) => {
     Logs.findById(req.params.id, (error, foundLog) => {
         res.render('Show', {Logs: foundLog})
     })
+})
+
+// ! DELETE ROUTE
+
+app.delete('/logs/:id', (req,res) => {
+    Logs.findByIdAndRemove(req.params.id, (error, deletedLog) => {
+        res.redirect('/logs/')
+    })
+})
+
+app.get('/logs/:id/edit', (req,res) => {
+    Logs.findById(req.params.id, (error, foundLog) => {
+        res.render('Edit', {Logs: foundLog})
+    })
+})
+
+app.put('/logs/:id', (req,res) => {
+    Logs.findByIdAndUpdate(req.params.id, (error, updatedLog) => {
+        res.redirect('/logs/').catch((error) => {
+            console.error(error);
+        })
+    })
+})
+
+// Not Found Routee
+app.get('*', (req,res) => {
+    res.render('404')
 })
 
 app.listen(port, () => {
